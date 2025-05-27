@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,73 +29,72 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AppUserDetailsService appUserDetailsService;
-    private final JwtRequestFilter jwtRequestFilter;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final JwtRequestFilter         jwtRequestFilter;
+    private final AppUserDetailsService    userDetailsService;
 
-    /* ------------  SECURITY FILTER CHAIN  ------------ */
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .cors(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Public endpoints
-                .requestMatchers(
-                        "/api/v1.0/login",
-                        "/api/v1.0/register",
-                        "/api/v1.0/send-reset-otp",
-                        "/api/v1.0/reset-password",
-                        "/api/v1.0/logout")
-                    .permitAll()
-                    .anyRequest().authenticated()
-            )
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .logout(AbstractHttpConfigurer::disable)
-            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(e -> e.authenticationEntryPoint(customAuthenticationEntryPoint));
-         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+    /* ────────────────────────────────── CORE AUTH BEANS ────────────────────────────────── */
 
-        return http.build();
-    }
-
-    /* ------------  PASSWORD ENCODER  ------------ */
+    /** Password hashing strategy (BCrypt 10 rounds). */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /* ------------  CORS CONFIGURATION  ------------ */
+    /** Hook UserDetailsService + encoder into Spring-Security auth pipeline. */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        // exact production domain + all Vercel previews + localhost dev
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "https://authify-secure-authentication-app.vercel.app",
-                "https://*.vercel.app"
-        ));
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Set-Cookie"));
-        config.setAllowCredentials(true);
-
-        // *** Log patterns so you can confirm in Railway logs ***
-        System.out.println("CORS patterns -> " + config.getAllowedOriginPatterns());
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
-    /* ------------  AUTH MANAGER  ------------ */
+    /** Exposes AuthenticationManager so you can constructor-inject it in controllers/services. */
     @Bean
-    public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(appUserDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(provider);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
+        return cfg.getAuthenticationManager();
+    }
+
+    /* ────────────────────────────────── HTTP SECURITY ─────────────────────────────────── */
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())               // global CORS
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()      // pre-flight
+                .requestMatchers(
+                        "/login", "/register",
+                        "/api/v1.0/login", "/api/v1.0/register",
+                        "/api/v1.0/send-reset-otp",
+                        "/api/v1.0/reset-password",
+                        "/api/v1.0/logout"
+                ).permitAll()
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(sm ->
+                    sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider());
+
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    /* ─────────────────────────────────── GLOBAL CORS ───────────────────────────────────── */
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOrigins(List.of("https://authify-secure-authentication-app.vercel.app"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setExposedHeaders(List.of("Set-Cookie"));
+        cfg.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cfg);
+        return source;
     }
 }
