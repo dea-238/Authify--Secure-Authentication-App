@@ -17,7 +17,7 @@ public class ProfileController {
     private final ProfileService profileService;
     private final EmailService emailService;
 
-    @PostMapping("/register")
+    @PostMapping("/api/v1.0/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ProfileResponse register(@Valid @RequestBody ProfileRequest request) {
         ProfileResponse response = profileService.createProfile(request);
@@ -25,7 +25,7 @@ public class ProfileController {
         return response;
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/api/v1.0/profile")
     public ProfileResponse getProfile(@CurrentSecurityContext(expression = "authentication?.name") String email) {
         return profileService.getProfile(email);
     }

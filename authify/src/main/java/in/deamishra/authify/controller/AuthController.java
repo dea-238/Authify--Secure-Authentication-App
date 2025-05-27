@@ -37,7 +37,7 @@ public class AuthController {
 
     private final ProfileService profileService;
 
-    @PostMapping("/login")
+    @PostMapping("/api/v1.0/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
             authenticate(request.getEmail(), request.getPassword());
@@ -73,12 +73,12 @@ public class AuthController {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
     }
 
-    @GetMapping("/is-authenticated")
+    @GetMapping("/api/v1.0/is-authenticated")
     public ResponseEntity<Boolean> isAuthenticated(@CurrentSecurityContext(expression = "authentication?.name") String email) {
         return ResponseEntity.ok(email != null);
     }
 
-    @PostMapping("/send-reset-otp")
+    @PostMapping("/api/v1.0/send-reset-otp")
     public void sendResetOtp(@RequestParam String email) {
         try {
             profileService.sendResetOtp(email);
@@ -87,7 +87,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/reset-password")
+    @PostMapping("/api/v1.0/reset-password")
     public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         try {
             profileService.resetPassword(request.getEmail(), request.getOtp(), request.getNewPassword());
@@ -96,7 +96,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/send-otp")
+    @PostMapping("/api/v1.0/send-otp")
     public void sendVerifyOtp(@CurrentSecurityContext(expression = "authentication?.name") String email) {
         try {
             profileService.sendOtp(email);
@@ -105,7 +105,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/verify-otp")
+    @PostMapping("/api/v1.0/verify-otp")
     public void verifyEmail(@RequestBody Map<String, Object> request,
                             @CurrentSecurityContext(expression = "authentication?.name") String email) {
         if (request.get("otp").toString() == null) {
@@ -119,7 +119,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/api/v1.0/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
