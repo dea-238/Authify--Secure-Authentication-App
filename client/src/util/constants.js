@@ -1,3 +1,3 @@
 export const AppConstants = {
-    BACEND_URL: 'http://localhost:9090/api/v1.0',
-}
+  BASE_URL: import.meta.env.VITE_API_URL
+};

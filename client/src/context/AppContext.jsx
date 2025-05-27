@@ -1,60 +1,36 @@
-import {createContext, useEffect, useState} from "react";
-import {AppConstants} from "../util/constants.js";
+import { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import {toast} from "react-toastify";
+import { AppConstants } from "../util/constants.js";
 
 export const AppContext = createContext();
 
-export const AppContextProvider = (props) => {
+export const AppContextProvider = ({ children }) => {
+  // Global axios defaults
+  axios.defaults.withCredentials = true;
+  axios.defaults.baseURL = AppConstants.BASE_URL;
 
-    axios.defaults.withCredentials = true;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData]   = useState(null);
 
-    const backendURL = AppConstants.BACEND_URL;
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userData, setUserData] = useState(false);
-
-    const getUserData = async () => {
-        try {
-            const response = await axios.get(backendURL+"/profile");
-            if (response.status === 200) {
-                setUserData(response.data);
-            } else {
-                toast.error("Unable to retrieve profile");
-            }
-        }catch(error) {
-            toast.error(error.message);
-        }
+  // Fetch logged-in user (if cookie is present)
+  const getUserData = async () => {
+    try {
+      const res = await axios.get("/profile");
+      setUserData(res.data);
+      setIsLoggedIn(true);
+    } catch {
+      setUserData(null);
+      setIsLoggedIn(false);
     }
+  };
 
-    const getAuthState = async () => {
-        try {
-            const response = await axios.get(backendURL+"/is-authenticated");
-            if (response.status === 200 && response.data === true) {
-                setIsLoggedIn(true);
-                await getUserData();
-            } else {
-                setIsLoggedIn(false);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
+  useEffect(() => { getUserData(); }, []);
 
-    useEffect(() => {
-        getAuthState();
-    }, []);
-
-    const contextValue = {
-        backendURL,
-        isLoggedIn, setIsLoggedIn,
-        userData, setUserData,
-        getUserData,
-    }
-
-    return (
-        <AppContext.Provider value={contextValue}>
-            {props.children}
-        </AppContext.Provider>
-    )
-
-}
+  return (
+    <AppContext.Provider
+      value={{ isLoggedIn, userData, setUserData, setIsLoggedIn, getUserData }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
