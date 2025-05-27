@@ -20,9 +20,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
+
+// … imports stay the same …
 
 @Configuration
 @EnableWebSecurity
@@ -33,48 +34,60 @@ public class SecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
+    // -------------- SECURITY FILTER CHAIN --------------
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/send-reset-otp", "/reset-password", "/logout")
-                        .permitAll().anyRequest().authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .logout(AbstractHttpConfigurer::disable)
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint));
+        http
+            .cors(Customizer.withDefaults())        // <-- keep
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/register",
+                                 "/send-reset-otp", "/reset-password", "/logout")
+                .permitAll()
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .logout(AbstractHttpConfigurer::disable)
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(e -> e.authenticationEntryPoint(customAuthenticationEntryPoint));
+
         return http.build();
     }
 
+    // -------------- PASSWORD ENCODER --------------
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // -------------- CORS CONFIGURATION --------------
     @Bean
-    public CorsFilter corsFilter() {
-        return new CorsFilter(corsConfigurationSource());
-    }
-
-    private CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173","https://authify-secure-authentication-app.vercel.app"));
+
+        // allow local dev + ALL Vercel URLs
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:*",
+            "https://*.vercel.app"
+        ));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(true);          // needed for cookies
+        config.addExposedHeader("Set-Cookie");     // allow browser to read the cookie header
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
 
+    // -------------- AUTH MANAGER --------------
     @Bean
     public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(appUserDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(authenticationProvider);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(appUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(provider);
     }
-
 }
+
