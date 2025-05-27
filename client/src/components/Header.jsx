@@ -11,16 +11,11 @@ const Header = () => {
             <h5 className="fw-semibold">
                 Hey {userData ? userData.name : 'Developer'} <span role="img" aria-label="wave">👋</span>
             </h5>
-            <h1 className="fw-bold display-5 mb-3">Welcome to our product</h1>
+            <h1 className="fw-bold display-5 mb-3">Welcome!</h1>
 
             <p className="text-muted fs-5 mb-4" style={{maxWidth: "500px"}}>
-                Let's start with a quick product tour and you can setup the authentication in no time!
+                Click on Login and you can setup the authentication in no time!
             </p>
-
-            <button className="btn btn-outline-dark rounded-pill px-4 py-2">
-                Get Started
-            </button>
-
         </div>
     )
 }
