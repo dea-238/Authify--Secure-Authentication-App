@@ -5,6 +5,7 @@ import in.deamishra.authify.service.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -39,8 +40,14 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/login", "/register",
-                                     "/send-reset-otp", "/reset-password", "/logout")
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // Public endpoints
+                .requestMatchers(
+                        "/api/v1.0/login",
+                        "/api/v1.0/register",
+                        "/api/v1.0/send-reset-otp",
+                        "/api/v1.0/reset-password",
+                        "/api/v1.0/logout")
                     .permitAll()
                     .anyRequest().authenticated()
             )
@@ -48,6 +55,7 @@ public class SecurityConfig {
             .logout(AbstractHttpConfigurer::disable)
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(e -> e.authenticationEntryPoint(customAuthenticationEntryPoint));
+         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
