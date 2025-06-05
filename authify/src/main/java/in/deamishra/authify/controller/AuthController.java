@@ -42,26 +42,26 @@ public class AuthController {
 
     /* ------------------------------------------------ LOGIN ------------------------------------------------ */
 
-    @PostMapping("/api/v1.0/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
-        try {
-            authenticate(request.getEmail(), request.getPassword());
+@PostMapping("/api/v1.0/login")
+public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResponse response) {
+    try {
+        authenticate(request.getEmail(), request.getPassword());
 
-            final UserDetails userDetails = appUserDetailsService.loadUserByUsername(request.getEmail());
-            final String jwtToken = jwtUtil.generateToken(userDetails);
+        final UserDetails userDetails = appUserDetailsService.loadUserByUsername(request.getEmail());
+        final String jwtToken = jwtUtil.generateToken(userDetails);
 
-            ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
-                .httpOnly(true)
-                .secure(true)                // ✔️ Required for SameSite=None
-                .path("/")
-                .maxAge(Duration.ofDays(1))
-                .sameSite("None")           // ✔️ Required for cross-site cookie
-                .build();
+        ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("None")
+            .path("/")
+            .maxAge(Duration.ofDays(1))
+            .build();
 
-            return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(new AuthResponse(request.getEmail(), jwtToken));
+        // ✅ This is the real fix: set it directly on servlet response
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
+        return ResponseEntity.ok(new AuthResponse(request.getEmail(), jwtToken));
 
         } catch (BadCredentialsException ex) {
             Map<String, Object> error = new HashMap<>();
