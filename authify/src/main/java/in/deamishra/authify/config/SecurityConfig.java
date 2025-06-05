@@ -72,6 +72,7 @@ public class SecurityConfig {
             "/api/v1.0/reset-password",
             "/api/v1.0/send-otp",
             "/api/v1.0/verify-otp",
+            "/api/v1.0/profile",
             "/api/v1.0/logout"
             ).permitAll()
             .anyRequest().authenticated()
