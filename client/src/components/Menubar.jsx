@@ -52,7 +52,7 @@ const Menubar = () => {
           <div className="bg-dark text-white rounded-circle d-flex justify-content-center align-items-center"
                style={{ width: 40, height: 40, cursor: "pointer" }}
                onClick={() => setOpen(prev => !prev)}>
-            {userData?.name?.charAt(0)?.toUpperCase() || "U"}
+            {userData?.name?.charAt(0)?.toUpperCase()}
 
           </div>
 
