@@ -51,16 +51,17 @@ public class AuthController {
             final String jwtToken = jwtUtil.generateToken(userDetails);
 
             ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
-                    .httpOnly(true)
-                    .secure(true)                  // required when SameSite=None
-                    .path("/")
-                    .maxAge(Duration.ofDays(1))
-                    .sameSite("None")              // allow cross-site requests
-                    .build();
+                .httpOnly(true)
+                .secure(true)                // ✔️ Required for SameSite=None
+                .path("/")
+                .maxAge(Duration.ofDays(1))
+                .sameSite("None")           // ✔️ Required for cross-site cookie
+                .build();
 
             return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(new AuthResponse(request.getEmail(), jwtToken));
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new AuthResponse(request.getEmail(), jwtToken));
+
 
         } catch (BadCredentialsException ex) {
             Map<String, Object> error = new HashMap<>();

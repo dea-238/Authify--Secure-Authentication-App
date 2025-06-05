@@ -7,7 +7,7 @@ export const AppContext = createContext();
 export const AppContextProvider = ({ children }) => {
   // Global axios defaults
   axios.defaults.withCredentials = true;
-  axios.defaults.baseURL = AppConstants.API;
+  axios.defaults.baseURL = "https://authify-secure-authentication-app-production.up.railway.app/api/v1.0";
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData]   = useState(null);
