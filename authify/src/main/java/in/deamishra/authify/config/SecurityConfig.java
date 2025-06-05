@@ -64,18 +64,17 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())               // global CORS
             .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // <-- separate line
             .requestMatchers(
-                HttpMethod.OPTIONS, "/**",               // allow CORS preflight
-                "/login", "/register",                   // base auth
-                "/api/v1.0/login", "/api/v1.0/register", // main auth
-                "/api/v1.0/send-reset-otp",
-                "/api/v1.0/reset-password",
-                "/api/v1.0/send-otp",                    // <- missing
-                "/api/v1.0/verify-otp",                  // <- missing
-                "/api/v1.0/logout",                      // logout should also be public to clear JWT
-                "/api/v1.0/auth/**"                      // optional: match all auth endpoints
+            "/login", "/register",
+            "/api/v1.0/login", "/api/v1.0/register",
+            "/api/v1.0/send-reset-otp",
+            "/api/v1.0/reset-password",
+            "/api/v1.0/send-otp",
+            "/api/v1.0/verify-otp",
+            "/api/v1.0/logout"
             ).permitAll()
-                .anyRequest().authenticated()
+            .anyRequest().authenticated()
             )
             .sessionManagement(sm ->
                     sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
