@@ -7,7 +7,7 @@ export const AppContext = createContext();
 export const AppContextProvider = ({ children }) => {
   // Global axios defaults
   axios.defaults.withCredentials = true;
-  axios.defaults.baseURL = AppConstants.BASE_URL;
+  axios.defaults.baseURL = AppConstants.API;
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData]   = useState(null);
