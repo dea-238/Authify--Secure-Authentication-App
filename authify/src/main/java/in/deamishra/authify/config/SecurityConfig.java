@@ -71,13 +71,8 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())               // global CORS
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(
-                    "/login", "/register", "/profile",
-                    "/api/v1.0/login", "/api/v1.0/register", "/api/v1.0/profile",
-                    "/api/v1.0/send-reset-otp", "/api/v1.0/reset-password",
-                    "/api/v1.0/send-otp", "/api/v1.0/verify-otp",
-                    "/api/v1.0/logout"
-                ).permitAll()
+                .requestMatchers("/api/v1.0/**").permitAll()
+
                 .anyRequest().authenticated()
             )
              .formLogin(login -> login.disable())
