@@ -22,7 +22,7 @@ const Login = () => {
 
     try {
       if (isCreateAccount) {
-        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, {
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/register`, {
   name,
   email,
   password,
@@ -32,7 +32,7 @@ const Login = () => {
           navigate("/");
         }
       } else {
-        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/login`, {
   email,
   password,
 });

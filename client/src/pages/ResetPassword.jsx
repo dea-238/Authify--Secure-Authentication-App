@@ -18,7 +18,7 @@ const ResetPassword = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/send-reset-otp?email=${email}`);
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/send-reset-otp?email=${email}`);
       if (res.status === 200) {
         toast.success("OTP sent!");
         setStep(1);
@@ -39,7 +39,7 @@ const ResetPassword = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/reset-password`, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/reset-password`, {
   email,
   otp,
   newPassword
