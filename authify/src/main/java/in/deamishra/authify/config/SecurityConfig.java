@@ -64,20 +64,17 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())               // global CORS
             .authorizeHttpRequests(auth -> auth
-            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // <-- separate line
-            .requestMatchers(
-            "/login", "/register",
-            "/api/v1.0/login", "/api/v1.0/register",
-            "/api/v1.0/send-reset-otp",
-            "/api/v1.0/reset-password",
-            "/api/v1.0/send-otp",
-            "/api/v1.0/verify-otp",
-            "/api/v1.0/profile",
-            "/api/v1.0/logout"
-            ).permitAll()
-            .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(
+                    "/login", "/register", "/profile",
+                    "/api/v1.0/login", "/api/v1.0/register", "/api/v1.0/profile",
+                    "/api/v1.0/send-reset-otp", "/api/v1.0/reset-password",
+                    "/api/v1.0/send-otp", "/api/v1.0/verify-otp",
+                    "/api/v1.0/logout"
+                ).permitAll()
+                .anyRequest().authenticated()
             )
-            .sessionManagement(sm ->
+                        .sessionManagement(sm ->
                     sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider());
 
