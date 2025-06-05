@@ -80,7 +80,7 @@ public class SecurityConfig {
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form.disable()) 
+             .formLogin(login -> login.disable())
             .sessionManagement(sm ->
             sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider());
