@@ -80,16 +80,6 @@ public class SecurityConfig {
             sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider());
 
-        http
-    .addFilterBefore(new OncePerRequestFilter() {
-        @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-                throws ServletException, IOException {
-            System.out.println("▶ Request URI: " + request.getRequestURI());
-            filterChain.doFilter(request, response);
-        }
-    }, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
