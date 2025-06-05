@@ -17,7 +17,7 @@ const EmailVerify = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post("/verify-otp", { otp });
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/verify-otp`, { otp });
       if (res.status === 200) {
         toast.success("OTP verified!");
         getUserData();

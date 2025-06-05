@@ -20,7 +20,7 @@ const Menubar = () => {
 
   const logout = async () => {
     try {
-      await axios.post("/logout");
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`);
       setIsLoggedIn(false);
       setUserData(null);
       navigate("/");
@@ -31,7 +31,7 @@ const Menubar = () => {
 
   const sendVerifyOtp = async () => {
     try {
-      await axios.post("/send-otp");
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/send-otp`);
       navigate("/email-verify");
       toast.success("OTP sent");
     } catch (err) {

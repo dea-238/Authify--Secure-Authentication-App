@@ -18,7 +18,7 @@ const ResetPassword = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(`/send-reset-otp?email=${email}`);
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/send-reset-otp?email=${email}`);
       if (res.status === 200) {
         toast.success("OTP sent!");
         setStep(1);
@@ -39,7 +39,11 @@ const ResetPassword = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("/reset-password", { email, otp, newPassword });
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/reset-password`, {
+  email,
+  otp,
+  newPassword
+});
       if (res.status === 200) {
         toast.success("Password reset!");
         navigate("/login");

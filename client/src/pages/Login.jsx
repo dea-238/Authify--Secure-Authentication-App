@@ -22,13 +22,20 @@ const Login = () => {
 
     try {
       if (isCreateAccount) {
-        const res = await axios.post("/register", { name, email, password });
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, {
+  name,
+  email,
+  password,
+});
         if (res.status === 201) {
           toast.success("Account created successfully.");
           navigate("/");
         }
       } else {
-        const res = await axios.post("/login", { email, password });
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
+  email,
+  password,
+});
         if (res.status === 200) {
           setIsLoggedIn(true);
           getUserData();
