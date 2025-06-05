@@ -60,7 +60,8 @@ public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResp
 
         // ✅ This is the real fix: set it directly on servlet response
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
+        System.out.println("✅ JWT Token: " + jwtToken);
+        System.out.println("✅ Set-Cookie: " + cookie.toString());
         return ResponseEntity.ok(new AuthResponse(request.getEmail(), jwtToken));
 
         } catch (BadCredentialsException ex) {
