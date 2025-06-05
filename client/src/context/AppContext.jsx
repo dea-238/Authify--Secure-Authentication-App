@@ -15,7 +15,7 @@ export const AppContextProvider = ({ children }) => {
   // Fetch logged-in user (if cookie is present)
   const getUserData = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/profile`);
+      const res = await axios.get("/profile");
       setUserData(res.data);
       setIsLoggedIn(true);
     } catch {
