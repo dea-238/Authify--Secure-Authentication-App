@@ -70,7 +70,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())               // global CORS
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1.0/**").permitAll()
+                .requestMatchers("/register", "/api/v1.0/**").permitAll()  
                 // .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 .anyRequest().authenticated()
