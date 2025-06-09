@@ -42,9 +42,10 @@ public class AuthController {
 
     /* ------------------------------------------------ LOGIN ------------------------------------------------ */
 
-@PostMapping("/api/v1.0/login")
+@PostMapping({"/login","/api/v1.0/login"})
 public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResponse response) {
     try {
+        System.out.println("LOGIN INIT");
         authenticate(request.getEmail(), request.getPassword());
 
         final UserDetails userDetails = appUserDetailsService.loadUserByUsername(request.getEmail());

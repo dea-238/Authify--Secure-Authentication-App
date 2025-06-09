@@ -10,12 +10,12 @@ export const AppContextProvider = ({ children }) => {
   axios.defaults.baseURL = "https://authify-secure-authentication-app-production.up.railway.app/api/v1.0";
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData]   = useState(null);
+  const [userData, setUserData] = useState(null);
 
   // Fetch logged-in user (if cookie is present)
   const getUserData = async () => {
     try {
-      const res = await axios.get("/profile");
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/profile`);
       setUserData(res.data);
       setIsLoggedIn(true);
     } catch {
