@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 const Menubar = () => {
   const navigate = useNavigate();
   const { userData, setUserData, setIsLoggedIn } = useContext(AppContext);
-  console.log(userData)
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -21,7 +20,9 @@ const Menubar = () => {
 
   const logout = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/logout`);
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/logout`, {
+        withCredentials: true,
+      });
       setIsLoggedIn(false);
       setUserData(null);
       navigate("/");
