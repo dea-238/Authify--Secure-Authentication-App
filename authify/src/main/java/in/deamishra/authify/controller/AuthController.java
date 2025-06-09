@@ -93,7 +93,7 @@ public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResp
 
     /* ---------------------------------------------- MISC UTILS --------------------------------------------- */
 
-    @GetMapping("/api/v1.0/is-authenticated")
+    @GetMapping({"/is-authenticated","/api/v1.0/is-authenticated"})
     public ResponseEntity<Boolean> isAuthenticated(
             @CurrentSecurityContext(expression = "authentication?.name") String email) {
         return ResponseEntity.ok(email != null);
@@ -101,7 +101,7 @@ public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResp
 
     /* -------------------------------------------- PASSWORD RESET ------------------------------------------- */
 
-    @PostMapping("/api/v1.0/send-reset-otp")
+    @PostMapping({"/send-reset-otp","/api/v1.0/send-reset-otp"})
     public void sendResetOtp(@RequestParam String email) {
         try {
             profileService.sendResetOtp(email);
@@ -110,7 +110,7 @@ public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResp
         }
     }
 
-    @PostMapping("/api/v1.0/reset-password")
+    @PostMapping({"/reset-password","/api/v1.0/reset-password"})
     public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         try {
             profileService.resetPassword(
@@ -122,7 +122,7 @@ public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResp
 
     /* -------------------------------------------- EMAIL VERIFICATION --------------------------------------- */
 
-    @PostMapping("/api/v1.0/send-otp")
+    @PostMapping({"/send-otp","/api/v1.0/send-otp"})
     public void sendVerifyOtp(
             @CurrentSecurityContext(expression = "authentication?.name") String email) {
         try {
@@ -132,7 +132,7 @@ public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResp
         }
     }
 
-    @PostMapping("/api/v1.0/verify-otp")
+    @PostMapping({"/verify-otp","/api/v1.0/verify-otp"})
     public void verifyEmail(
             @RequestBody Map<String, Object> request,
             @CurrentSecurityContext(expression = "authentication?.name") String email) {
@@ -150,7 +150,7 @@ public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResp
 
     /* ------------------------------------------------ LOGOUT ------------------------------------------------ */
 
-    @PostMapping("/api/v1.0/logout")
+    @PostMapping({"/logout","/api/v1.0/logout"})
     public ResponseEntity<?> logout(HttpServletResponse response) {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
