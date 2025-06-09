@@ -71,16 +71,16 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())               // global CORS
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/register",
-                    "/login",
-                    "/logout",
-                    "/profile",
-                    "/send-otp",
-                    "/verify-otp",
-                    "/send-reset-otp",
-                    "/reset-password",
-                    "/is-authenticated",
-                    "/api/v1.0/**" // also allow all versioned paths
+                        "/register",
+                        "/login",
+                        "/logout",
+                        "/send-reset-otp",
+                        "/reset-password",
+                        "/api/v1.0/register",
+                        "/api/v1.0/login",
+                        "/api/v1.0/logout",
+                        "/api/v1.0/send-reset-otp",
+                        "/api/v1.0/reset-password"
                 ).permitAll()  
                 // .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
@@ -89,7 +89,8 @@ public class SecurityConfig {
              .formLogin(login -> login.disable())
             .sessionManagement(sm ->
             sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(authenticationProvider());
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
